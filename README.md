@@ -1,6 +1,12 @@
-# DSVM/DLVM Darknet
+# DSVM/DLVM Darknet Docker
 
-YOLO/Darknet on Docker - supporting jpgs & videos on [Azure Data Science/Deep Learning VM](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/deep-learning-dsvm-overview) with YOLOv3 and YOLO9000 weights.  
+YOLO/Darknet on Docker - supporting jpgs & videos on [Azure Data Science/Deep Learning VM](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/deep-learning-dsvm-overview) with YOLOv3 and YOLO9000 weights.
+
+This repo is similiar to the below repos - but aimed at running YOLO on Azure DLVM and DSVMs with support for video files:
+
+* [IoT Edge Module](https://github.com/vjrantal/iot-edge-darknet-module)
+* [Darknet YOLO IoT Edge](https://github.com/liupeirong/Azure/tree/master/DarknetYoloIoTEdge)
+
 
 Uncomment the [Dockerfile](Dockerfile#L18) to run automatically against the sample video included.
 
@@ -8,12 +14,23 @@ Uncomment the [Dockerfile](Dockerfile#L18) to run automatically against the samp
 
 # Building docker images
 
+Use docker as non-root user (optional)
+* sudo groupadd docker
+* sudo gpasswd -a $USER docker
+* newgrp docker
+
 ```
-docker build DLVM-darknet/darknet -t darknet:latest
-docker build DLVM-darknet -t dlvm-darknet:latest
+docker build DLVM-Darknet/darknet -t darknet:latest
+docker build DLVM-Darknet -t dlvm-darknet:latest
 ```
 
 # Run on Azure DSVM/DLVM (NC-Series)
+
+```
+docker run --runtime=nvidia dlvm-darknet:latest
+```
+
+or 
 
 ```
 nvidia-docker run dlvm-darknet:latest
@@ -140,3 +157,31 @@ horse: 98%
 horse: 97%
 horse: 91%
 ```
+
+# Other commands you can run in the container
+
+Bash into the container:
+```
+docker run --runtime=nvidia -ti dlvm-darknet:latest bash
+```
+
+Run YOLO against sample video using YOLOv3 weights 
+```
+./darknet detector demo ./cfg/coco.data ./cfg/yolov3.cfg yolov3.weights Wildlife.mp4 -out_filename Wildlife-out.avi -dont_show
+```
+
+Run YOLO against sample video using YOLO 9000 weights 
+```
+./darknet detector demo ./cfg/combine9k.data ./cfg/yolo9000.cfg yolo9000.weights Wildlife.mp4 -out_filename Wildlife-out.avi -dont_show
+```
+
+# References
+* Blog: https://blogs.msdn.microsoft.com/jamiedalton/2018/05/23/yolo-on-azure-deep-learning-virtual-machine-dlvm-linux/
+* Azure DLVM: https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/deep-learning-dsvm-overview
+* Azure NVIDIA Drivers: https://docs.microsoft.com/en-us/azure/virtual-machines/linux/n-series-driver-setup?toc=%2fazure%2fvirtual-machines%2flinux%2ftoc.json
+* NVIDIA-Docker: https://github.com/NVIDIA/nvidia-docker
+* Darknet: https://github.com/pjreddie/darknet
+* AlexyAB Darknet fork: https://github.com/AlexeyAB/darknet
+
+
+
